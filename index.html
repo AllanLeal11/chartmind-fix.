@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>ChartMind Test</title>
+</head>
+<body>
+
+<h1>ChartMind Test</h1>
+
+<button onclick="analyze()">Analizar</button>
+
+<pre id="result"></pre>
+
+<script>
+async function analyze() {
+  const res = await fetch("/api/analyze", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+      symbol: "XAU/USD",
+      timeframe: "5min"
+    })
+  });
+
+  const data = await res.json();
+  document.getElementById("result").textContent = JSON.stringify(data, null, 2);
+}
+</script>
+
+</body>
+</html>
