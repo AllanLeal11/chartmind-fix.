@@ -2,33 +2,42 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>ChartMind Test</title>
+  <link rel="icon" href="data:,">
 </head>
 <body>
+  <h1>ChartMind Test</h1>
+  <button onclick="analyze()">Analizar</button>
+  <pre id="result"></pre>
 
-<h1>ChartMind Test</h1>
+  <script>
+    async function analyze() {
+      const resultEl = document.getElementById("result");
+      resultEl.textContent = "Cargando...";
 
-<button onclick="analyze()">Analizar</button>
+      try {
+        const res = await fetch("/api/analyze", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            symbol: "XAU/USD",
+            timeframe: "5min"
+          })
+        });
 
-<pre id="result"></pre>
+        const data = await res.json();
 
-<script>
-async function analyze() {
-  const res = await fetch("/api/analyze", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify({
-      symbol: "XAU/USD",
-      timeframe: "5min"
-    })
-  });
+        if (!res.ok) {
+          resultEl.textContent = "Error: " + (data.error || res.status);
+          return;
+        }
 
-  const data = await res.json();
-  document.getElementById("result").textContent = JSON.stringify(data, null, 2);
-}
-</script>
-
+        resultEl.textContent = JSON.stringify(data, null, 2);
+      } catch (err) {
+        resultEl.textContent = "Error de red: " + err.message;
+      }
+    }
+  </script>
 </body>
 </html>
