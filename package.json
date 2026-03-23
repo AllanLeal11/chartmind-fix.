@@ -3,3 +3,14 @@
   "version": "1.0.0",
   "type": "module"
 }
+```
+
+---
+
+**Estructura de carpetas que debe quedar en tu repo:**
+```
+/
+├── api/
+│   └── analyze.js
+├── index.html
+└── package.json
