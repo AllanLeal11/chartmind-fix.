@@ -1,15 +1,20 @@
-export default async function handler(req, res) {
+export default async function handler(request) {
   try {
-    if (req.method !== "POST") {
-      return res.status(405).json({ error: "Método no permitido" });
+    if (request.method !== "POST") {
+      return new Response(JSON.stringify({ error: "Método no permitido" }), {
+        status: 405
+      });
     }
 
-    const { symbol, timeframe } = req.body;
+    const body = await request.json();
+    const { symbol, timeframe } = body;
 
     const apiKey = process.env.TWELVEDATA_API_KEY;
 
     if (!apiKey) {
-      throw new Error("Falta TWELVEDATA_API_KEY");
+      return new Response(JSON.stringify({ error: "Falta API KEY" }), {
+        status: 500
+      });
     }
 
     const url = `https://api.twelvedata.com/time_series?symbol=${symbol}&interval=${timeframe}&apikey=${apiKey}`;
@@ -18,23 +23,30 @@ export default async function handler(req, res) {
     const text = await response.text();
 
     if (!text) {
-      throw new Error("Respuesta vacía de la API");
+      return new Response(JSON.stringify({ error: "Respuesta vacía" }), {
+        status: 500
+      });
     }
 
     let data;
+
     try {
       data = JSON.parse(text);
     } catch (e) {
-      console.error("Respuesta inválida:", text);
-      throw new Error("La API no devolvió JSON válido");
+      return new Response(JSON.stringify({ error: "No es JSON válido", raw: text }), {
+        status: 500
+      });
     }
 
-    return res.status(200).json(data);
+    return new Response(JSON.stringify(data), {
+      status: 200
+    });
 
   } catch (error) {
-    console.error("ERROR:", error);
-    return res.status(500).json({
+    return new Response(JSON.stringify({
       error: error.message
+    }), {
+      status: 500
     });
   }
 }
